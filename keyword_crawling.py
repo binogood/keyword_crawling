@@ -25,7 +25,7 @@ chrome_options = webdriver.ChromeOptions()
 chrome_options.add_argument("disable-gpu")
 chrome_options.add_argument('lang=ko_KR')
 chrome_options.add_argument("user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36")
-path = '/home/talpiot/oem/1_talpiot_beekk/'
+path = 'path지정'
 
 
 DATABASE = {
@@ -94,7 +94,7 @@ def input_data(day_df,keyword_df,engine):
 
 
 
-def beekk_week_data(keyword_df,week_sql_df,engine):
+def week_save_data(keyword_df,week_sql_df,engine):
     week_data = pd.DataFrame()
 
     for i in range(1,len(keyword_df) + 1):
@@ -125,7 +125,7 @@ def beekk_week_data(keyword_df,week_sql_df,engine):
     last_data.to_sql('week_ranking',engine,if_exists='append', index=False)
 
 
-def save_beekk_data(DATABASE):
+def save_data(DATABASE):
     today = datetime.today()
     DB_URL = f"mysql+pymysql://{DATABASE['user']}:{DATABASE['password']}@{DATABASE['host']}:{DATABASE['port']}/{DATABASE['database']}?charset=utf8"
     engine = create_engine(DB_URL, encoding = 'utf-8')
@@ -142,12 +142,12 @@ def save_beekk_data(DATABASE):
         date2 = (today - timedelta(days=6)).strftime('%Y-%m-%d')
         week_sql = f'select * from ranking where DATE(date) between "{date2}" and "{date1}";'
         week_sql_df = pd.read_sql_query(week_sql, engine)
-        beekk_week_data(keyword_df, week_sql_df, engine)
+        week_save_data(keyword_df, week_sql_df, engine)
         
 
 
 sched = BlockingScheduler()
-sched.add_job(save_beekk_data, 'cron', hour='23', minute='40', id="test_1", args=[DATABASE])
+sched.add_job(save_data, 'cron', hour='23', minute='40', id="test_1", args=[DATABASE])
 sched.start()
 
 
